@@ -1,0 +1,180 @@
+bodies:
+  - name: summit_xl_base_link
+    type: dynamic
+    color: [1, 1, 1, 0.75]
+    footprints:
+      - type: polygon
+        density: 100
+        points:  [[-0.325, -0.205],
+                  [0.325, -0.205],
+                  [0.325, 0.205],
+                  [-0.325, 0.205]]
+      - type: polygon
+        density: 1.0
+        points: [[ 0.0, 0.205],
+                 [ 0.325, 0.0],
+                 [ 0.0, -0.205]]
+
+  - name: summit_xl_front_left_wheel
+    type: dynamic
+    color: [1, 1, 1, 1]
+    footprints:
+      - type: polygon
+        density: 1
+        points:  [[-0.06, -0.0435],
+                  [0.06, -0.0435],
+                  [0.06, 0.0435],
+                  [-0.06, 0.0435]]
+        layers: ["wheels"]
+
+  - name: summit_xl_front_right_wheel
+    type: dynamic
+    color: [1, 1, 1, 1]
+    footprints:
+      - type: polygon
+        density: 1
+        points:  [[-0.06, -0.0435],
+                  [0.06, -0.0435],
+                  [0.06, 0.0435],
+                  [-0.06, 0.0435]]
+        layers: ["wheels"]
+
+  - name: summit_xl_rear_left_wheel
+    type: dynamic
+    color: [1, 1, 1, 1]
+    footprints:
+      - type: polygon
+        density: 1
+        points:  [[-0.06, -0.0435],
+                  [0.06, -0.0435],
+                  [0.06, 0.0435],
+                  [-0.06, 0.0435]]
+        layers: ["wheels"]
+
+  - name: summit_xl_rear_right_wheel
+    type: dynamic
+    color: [1, 1, 1, 1]
+    footprints:
+      - type: polygon
+        density: 1
+        points:  [[-0.06, -0.0435],
+                  [0.06, -0.0435],
+                  [0.06, 0.0435],
+                  [-0.06, 0.0435]]
+        layers: ["wheels"]
+
+  - name: summit_xl_front_laser_body
+    type: dynamic
+    color: [1, 1, 0, 1]
+    footprints:
+      - type: polygon
+        density: 1
+        points:  [[-0.035355, 0],
+                  [0.035355, 0],
+                  [0, 0.035355],
+                  [0, -0.035355]]
+
+  - name: summit_xl_rear_laser_body
+    type: dynamic
+    color: [1, 1, 0, 1]
+    footprints:
+      - type: polygon
+        density: 100
+        points:  [[-0.035355, 0],
+                  [0.035355, 0],
+                  [0, 0.035355],
+                  [0, -0.035355]]
+
+joints:
+  - type: weld
+    name: front_left_wheel_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [-0.2025, -0.175]
+      - name: summit_xl_front_left_wheel
+        anchor: [0, 0]
+
+  - type: weld
+    name: front_right_wheel_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [-0.2025, 0.175]
+      - name: summit_xl_front_right_wheel
+        anchor: [0, 0]
+
+  - type: weld
+    name: rear_left_wheel_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [0.2025, -0.175]
+      - name: summit_xl_rear_left_wheel
+        anchor: [0, 0]
+
+  - type: weld
+    name: rear_right_wheel_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [0.2025, 0.175]
+      - name: summit_xl_rear_right_wheel
+        anchor: [0, 0]
+
+  - type: weld
+    name: front_laser_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [0.38614, -0.205]
+      - name: summit_xl_front_laser_body
+        anchor: [0, 0]
+
+  - type: weld
+    name: rear_laser_joint
+    bodies:
+      - name: summit_xl_base_link
+        anchor: [-0.38614, 0.205]
+      - name: summit_xl_rear_laser_body
+        anchor: [0, 0]
+
+
+plugins:
+  - type: ModelTfPublisher
+    name: tf_publisher
+    publish_tf_world: false
+    reference: summit_xl_base_link
+
+  - type: DiffDrive
+    name: steel_drive
+    body: summit_xl_base_link
+    odom_frame_id: summit_xl_odom
+
+  - type: Laser
+    name: summit_xl_front_laser
+    frame: summit_xl_front_laser
+    topic: /summit_xl/front_laser/scan
+    body: summit_xl_base_link
+    broadcast_tf: true
+    origin: [0.38614, -0.205, -0.785398163397448]
+    range: 20
+    angle: {min: -2.35, max: 2.35, increment: 0.004363323129985824}
+    noise_std_dev: 0.05
+    update_rate: 40
+    layers: ["map"]
+
+  - type: Laser
+    name: summit_xl_rear_laser
+    frame: summit_xl_rear_laser
+    topic: /summit_xl/rear_laser/scan
+    body: summit_xl_base_link
+    broadcast_tf: true
+    origin: [-0.38614, 0.205, 2.356194490192345]
+    range: 20
+    angle: {min: -2.35, max: 2.35, increment: 0.004363323129985824}
+    noise_std_dev: 0.05
+    update_rate: 40
+    layers: ["map"]
+
+  - type: Imu
+    name: imu
+    body: summit_xl_base_link
+    imu_frame_id: summit_xl_imu_link
+    imu_pub: /summit_xl/imu/data
+    pub_rate: 1000

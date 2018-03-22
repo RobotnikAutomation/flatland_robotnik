@@ -1,0 +1,10 @@
+properties: {}
+layers:
+  - name: "map"
+    map: "map_14-03.yaml"
+    color: [0, 1, 0, 1]
+  - name: "wheels"
+models:
+  - name: summit_xl_steel
+    pose: [0, 0, 0]
+    model: "../robots/summit_xl_steel.model.yaml"

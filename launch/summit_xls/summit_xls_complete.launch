@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="launch_rviz" default="true"/>
+  <arg name="launch_move_base" default="true"/>
+  <arg name="launch_amcl_and_mapserver" default="true"/>
+  <arg name="launch_cartographer_mapping" default="false"/>
+  <arg name="launch_cartographer_map_updater" default="false"/>
+  <arg name="launch_cartographer_localization" default="false"/>
+  <arg name="map_file" default="$(find flatland_robotnik)/maps/map_14-03.yaml"/>
+
+  <!-- twist -->
+  <include file="$(find flatland_robotnik)/launch/summit_xls/twist.launch"/>
+
+  <!-- flatland -->
+  <include file="$(find flatland_robotnik)/launch/summit_xls/server_cartographer.launch"/>
+
+  <!-- move_base -->
+  <include if="$(arg launch_move_base)" file="$(find flatland_robotnik)/launch/summit_xls/move_base_cartographer_flatland.launch"/>
+
+  <!-- amcl and map server-->
+  <include if="$(arg launch_amcl_and_mapserver)" file="$(find summit_xl_localization)/launch/map_server.launch">
+		<arg name="map_file" value="$(arg map_file)"/>
+	</include>
+
+	<include if="$(arg launch_amcl_and_mapserver)" file="$(find summit_xl_localization)/launch/amcl.launch">
+		<arg name="scan_topic" value="/summit_xl/front_laser/scan"/>
+		<arg name="base_frame" value="summit_xl_base_link"/>
+		<arg name="odom_model_type" value="diff"/>
+	</include>
+
+  <!-- cartographer -->
+  <include if="$(arg launch_cartographer_mapping)" file="$(find cartographer_robotnik)/launch/summit_xls/summit_xls_mapping.launch">
+    <arg name="scan_1" value="/summit_xl/front_laser/scan"/>
+    <arg name="scan_2" value="/summit_xl/rear_laser/scan"/>
+    <arg name="odom" value="/odometry/filtered"/>
+    <arg name="configuration_file" value="summit_xls_mapping_flatland.lua"/>
+  </include>
+
+  <include if="$(arg launch_cartographer_map_updater)" file="$(find cartographer_robotnik)/launch/summit_xls/summit_xls_map_updater.launch">
+    <arg name="scan_1" value="/summit_xl/front_laser/scan"/>
+    <arg name="scan_2" value="/summit_xl/rear_laser/scan"/>
+    <arg name="odom" value="/odometry/filtered"/>
+    <arg name="configuration_file" value="summit_xls_map_updater_flatland.lua"/>
+    <arg name="load_state_filename" value="$(arg pbstream_map)"/>
+  </include>
+
+  <include if="$(arg launch_cartographer_localization)" file="$(find cartographer_robotnik)/launch/summit_xls/summit_xls_localization.launch">
+    <arg name="scan_1" value="/summit_xl/front_laser/scan"/>
+    <arg name="scan_2" value="/summit_xl/rear_laser/scan"/>
+    <arg name="odom" value="/odometry/filtered"/>
+    <arg name="configuration_file" value="summit_xls_localization_flatland.lua"/>
+    <arg name="load_state_filename" value="$(arg pbstream_map)"/>
+  </include>
+
+  <!-- rviz -->
+	<node name="rviz" pkg="rviz" type="rviz" required="true" args="-d $(find flatland_robotnik)/config/summit_xls/summit_xls_cartographer.rviz"/>
+
+
+</launch>

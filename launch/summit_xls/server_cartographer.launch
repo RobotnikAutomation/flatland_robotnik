@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="world_path" default="$(find flatland_robotnik)/maps/world_map_14-03.yaml"/>
+  <arg name="update_rate" default="10"/>
+  <arg name="step_size" default="0.1"/>
+  <arg name="show_viz" default="true"/>
+  <arg name="viz_pub_rate" default="30.0"/>
+  <arg name="use_rviz" default="false"/>
+
+  <env name="ROSCONSOLE_FORMAT" value="[${severity} ${time} ${logger}]: ${message}" />
+
+  <param name="use_sim_time" value="true"/>
+
+  <!-- launch flatland server -->
+  <node name="flatland_server" pkg="flatland_server" type="flatland_server">
+    <!-- Use the arguments passed into the launchfile for this node -->
+    <param name="world_path" value="$(arg world_path)" />
+    <param name="update_rate" value="$(arg update_rate)" />
+    <param name="step_size" value="$(arg step_size)" />
+    <param name="show_viz" value="$(arg show_viz)" />
+    <param name="viz_pub_rate" value="$(arg viz_pub_rate)" />
+
+    <remap from="cmd_vel" to="summit_xl_control/cmd_vel"/>
+  </node>
+
+<group if="$(arg show_viz)">
+  <node name="flatland_viz" pkg="flatland_viz" type="flatland_viz" required="true" unless="$(arg use_rviz)"/>
+</group>
+
+</launch>
